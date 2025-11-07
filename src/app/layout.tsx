@@ -3,7 +3,8 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'OpenSea App',
-  description: 'Modern Next.js application with authentication and API integration',
+  description:
+    'Modern Next.js application with authentication and API integration',
 };
 
 export default function RootLayout({
