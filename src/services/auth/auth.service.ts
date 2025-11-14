@@ -1,16 +1,20 @@
+import { API_ENDPOINTS, authConfig } from '@/config/api';
 import { apiClient } from '@/lib/api-client';
-import { authConfig } from '@/config/api';
 import type {
-  LoginCredentials,
-  RegisterData,
   AuthResponse,
-  User,
+  LoginCredentials,
+  MessageResponse,
+  RegisterData,
+  RegisterResponse,
+  ResetPasswordRequest,
+  SendPasswordResetRequest,
 } from '@/types/auth';
 
 export const authService = {
+  // POST /v1/auth/login/password
   async login(credentials: LoginCredentials): Promise<AuthResponse> {
     const response = await apiClient.post<AuthResponse>(
-      '/auth/login',
+      API_ENDPOINTS.AUTH.LOGIN,
       credentials
     );
 
@@ -24,48 +28,35 @@ export const authService = {
     return response;
   },
 
-  async register(data: RegisterData): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/auth/register', data);
-
-    if (response.token) {
-      this.setToken(response.token);
-      if (response.refreshToken) {
-        this.setRefreshToken(response.refreshToken);
-      }
-    }
+  // POST /v1/auth/register/password
+  async register(data: RegisterData): Promise<RegisterResponse> {
+    const response = await apiClient.post<RegisterResponse>(
+      API_ENDPOINTS.AUTH.REGISTER,
+      data
+    );
 
     return response;
   },
 
-  async logout(): Promise<void> {
-    try {
-      await apiClient.post('/auth/logout');
-    } finally {
-      this.clearTokens();
-    }
+  // POST /v1/auth/send/password
+  async sendPasswordReset(
+    data: SendPasswordResetRequest
+  ): Promise<MessageResponse> {
+    return apiClient.post<MessageResponse>(
+      API_ENDPOINTS.AUTH.SEND_PASSWORD_RESET,
+      data
+    );
   },
 
-  async getCurrentUser(): Promise<User> {
-    return apiClient.get<User>('/auth/me');
+  // POST /v1/auth/reset/password
+  async resetPassword(data: ResetPasswordRequest): Promise<MessageResponse> {
+    return apiClient.post<MessageResponse>(
+      API_ENDPOINTS.AUTH.RESET_PASSWORD,
+      data
+    );
   },
 
-  async refreshToken(): Promise<AuthResponse> {
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      throw new Error('No refresh token available');
-    }
-
-    const response = await apiClient.post<AuthResponse>('/auth/refresh', {
-      refreshToken,
-    });
-
-    if (response.token) {
-      this.setToken(response.token);
-    }
-
-    return response;
-  },
-
+  // Token Management
   setToken(token: string): void {
     if (typeof window !== 'undefined') {
       localStorage.setItem(authConfig.tokenKey, token);

@@ -164,7 +164,7 @@ npx shadcn@latest add [component-name]
 - `/` - Home page (public)
 - `/login` - Login page (public)
 - `/register` - Registration page (public)
-- `/dashboard` - Dashboard (requires authentication)
+- `/` - Dashboard (requires authentication)
 
 ## 📦 Technologies
 

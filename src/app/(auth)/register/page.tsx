@@ -1,122 +1,228 @@
 'use client';
 
+import { useAuth } from '@/contexts/auth-context';
+import { useForm } from '@tanstack/react-form';
+import Link from 'next/link';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { authService } from '@/services/auth.service';
-import type { RegisterData } from '@/types/auth';
+
+interface RegisterFormData {
+  name: string;
+  email: string;
+  username: string;
+  password: string;
+}
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const [data, setData] = useState<RegisterData>({
-    email: '',
-    password: '',
-    name: '',
+  const { register, isLoading } = useAuth();
+  const [error, setError] = useState('');
+
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      email: '',
+      username: '',
+      password: '',
+    } as RegisterFormData,
+    onSubmit: async ({ value }: { value: RegisterFormData }) => {
+      setError('');
+
+      try {
+        // Estrutura os dados no formato RegisterData
+        await register({
+          email: value.email,
+          password: value.password,
+          username: value.username,
+          profile: {
+            name: value.name,
+          },
+        });
+      } catch (err) {
+        setError('Erro ao criar conta. Tente novamente.');
+        console.error('Erro no registro:', err);
+      }
+    },
   });
-  const [error, setError] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    setIsLoading(true);
-
-    try {
-      await authService.register(data);
-      router.push('/dashboard');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed');
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="w-full max-w-md p-8 space-y-6 bg-card rounded-lg shadow-lg border border-border">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100 px-4">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl">
+        {/* Header */}
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-foreground">Register</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Create a new account to get started
+          <h2 className="text-3xl font-bold text-gray-900">Criar Conta</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Preencha os dados para se cadastrar
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Form */}
+        <form
+          className="mt-8 space-y-6"
+          onSubmit={e => {
+            e.preventDefault();
+            e.stopPropagation();
+            form.handleSubmit();
+          }}
+        >
           {error && (
-            <div className="p-3 text-sm text-destructive-foreground bg-destructive/10 border border-destructive rounded-md">
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
               {error}
             </div>
           )}
 
-          <div className="space-y-2">
-            <label
-              htmlFor="name"
-              className="text-sm font-medium text-foreground"
-            >
-              Name
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={data.name}
-              onChange={e => setData({ ...data, name: e.target.value })}
-              className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="Your name"
-            />
+          <div className="space-y-4">
+            {/* Name */}
+            <form.Field name="name">
+              {field => (
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Nome
+                  </label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    value={field.state.value}
+                    onChange={e => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    placeholder="Seu nome"
+                  />
+                </div>
+              )}
+            </form.Field>
+
+            {/* Username */}
+            <form.Field name="username">
+              {field => (
+                <div>
+                  <label
+                    htmlFor="username"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Nome de usuário
+                  </label>
+                  <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    required
+                    value={field.state.value}
+                    onChange={e => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    placeholder="usuario123"
+                  />
+                </div>
+              )}
+            </form.Field>
+
+            {/* Email */}
+            <form.Field name="email">
+              {field => (
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={field.state.value}
+                    onChange={e => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    placeholder="seu@email.com"
+                  />
+                </div>
+              )}
+            </form.Field>
+
+            {/* Password */}
+            <form.Field name="password">
+              {field => (
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
+                    Senha
+                  </label>
+                  <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="new-password"
+                    required
+                    value={field.state.value}
+                    onChange={e => field.handleChange(e.target.value)}
+                    onBlur={field.handleBlur}
+                    className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                    placeholder="••••••••"
+                  />
+                </div>
+              )}
+            </form.Field>
           </div>
 
-          <div className="space-y-2">
-            <label
-              htmlFor="email"
-              className="text-sm font-medium text-foreground"
+          {/* Submit Button */}
+          <div>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
             >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={data.email}
-              onChange={e => setData({ ...data, email: e.target.value })}
-              className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="your@email.com"
-            />
+              {isLoading ? (
+                <span className="flex items-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Criando conta...
+                </span>
+              ) : (
+                'Criar Conta'
+              )}
+            </button>
           </div>
 
-          <div className="space-y-2">
-            <label
-              htmlFor="password"
-              className="text-sm font-medium text-foreground"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              required
-              value={data.password}
-              onChange={e => setData({ ...data, password: e.target.value })}
-              className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              placeholder="••••••••"
-            />
+          {/* Login Link */}
+          <div className="text-center">
+            <p className="text-sm text-gray-600">
+              Já tem uma conta?{' '}
+              <Link
+                href="/login"
+                className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
+              >
+                Entre aqui
+              </Link>
+            </p>
           </div>
-
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full py-2 px-4 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? 'Creating account...' : 'Register'}
-          </button>
         </form>
-
-        <div className="text-center text-sm">
-          <span className="text-muted-foreground">
-            Already have an account?{' '}
-          </span>
-          <a href="/login" className="text-primary hover:underline font-medium">
-            Login
-          </a>
-        </div>
       </div>
     </div>
   );
