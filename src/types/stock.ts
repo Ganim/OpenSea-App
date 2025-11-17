@@ -488,6 +488,7 @@ export interface TagResponse {
 export interface Template {
   id: string;
   name: string;
+  productAttributes?: Record<string, unknown>;
   variantAttributes?: Record<string, unknown>;
   itemAttributes?: Record<string, unknown>;
   createdAt: Date;
@@ -497,12 +498,14 @@ export interface Template {
 
 export interface CreateTemplateRequest {
   name: string;
+  productAttributes?: Record<string, unknown>;
   variantAttributes?: Record<string, unknown>;
   itemAttributes?: Record<string, unknown>;
 }
 
 export interface UpdateTemplateRequest {
   name?: string;
+  productAttributes?: Record<string, unknown>;
   variantAttributes?: Record<string, unknown>;
   itemAttributes?: Record<string, unknown>;
 }
@@ -565,4 +568,49 @@ export interface PurchaseOrdersResponse {
 
 export interface PurchaseOrderResponse {
   purchaseOrder: PurchaseOrder;
+}
+
+// Template Request Types (User requests)
+export type TemplateRequestStatus =
+  | 'PENDING'
+  | 'APPROVED'
+  | 'REJECTED'
+  | 'COMPLETED';
+
+export interface TemplateRequest {
+  id: string;
+  templateName: string;
+  category?: string;
+  justification: string;
+  examples?: string;
+  status: TemplateRequestStatus;
+  requestedBy: string;
+  requestedAt: Date;
+  reviewedBy?: string;
+  reviewedAt?: Date;
+  reviewNotes?: string;
+  completedTemplateId?: string;
+  createdAt: Date;
+  updatedAt?: Date;
+}
+
+export interface CreateTemplateRequestRequest {
+  templateName: string;
+  category?: string;
+  justification: string;
+  examples?: string;
+}
+
+export interface UpdateTemplateRequestRequest {
+  status?: TemplateRequestStatus;
+  reviewNotes?: string;
+  completedTemplateId?: string;
+}
+
+export interface TemplateRequestsResponse {
+  requests: TemplateRequest[];
+}
+
+export interface TemplateRequestResponse {
+  request: TemplateRequest;
 }

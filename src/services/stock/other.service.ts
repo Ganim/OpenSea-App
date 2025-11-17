@@ -209,7 +209,7 @@ export const templatesService = {
     id: string,
     data: UpdateTemplateRequest
   ): Promise<TemplateResponse> {
-    return apiClient.patch<TemplateResponse>(
+    return apiClient.put<TemplateResponse>(
       API_ENDPOINTS.TEMPLATES.UPDATE(id),
       data
     );

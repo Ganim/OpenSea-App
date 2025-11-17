@@ -1,6 +1,6 @@
 export const apiConfig = {
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3333',
-  timeout: 10000,
+  timeout: 30000, // Aumentado de 10s para 30s
   headers: {
     'Content-Type': 'application/json',
   },

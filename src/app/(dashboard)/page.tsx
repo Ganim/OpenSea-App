@@ -1,261 +1,242 @@
+/**
+ * Dashboard Page
+ * Página principal do dashboard
+ */
+
 'use client';
 
-import { ProfileForm } from '@/components/profile-form';
-import { useAuth } from '@/contexts/auth-context';
-import { useMySessions, useUpdateProfile } from '@/hooks';
-import type { UpdateProfileRequest } from '@/types/auth';
-import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { StatsCard } from '@/components/shared/stats-card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { motion } from 'framer-motion';
+import {
+  ArrowRight,
+  BarChart3,
+  DollarSign,
+  Package,
+  Plus,
+  ShoppingCart,
+  Users,
+} from 'lucide-react';
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const { user, isLoading: isAuthLoading, isAuthenticated, logout } = useAuth();
-  const { data: sessionsData } = useMySessions(isAuthenticated);
-
-  const updateProfile = useUpdateProfile();
-
-  const [editMode, setEditMode] = useState(false);
-
-  // Use useMemo to derive initial profile data
-  const initialProfileData = useMemo(
-    () => ({
-      name: user?.profile?.name || '',
-      surname: user?.profile?.surname || '',
-      location: user?.profile?.location || '',
-      bio: user?.profile?.bio || '',
-    }),
-    [
-      user?.profile?.name,
-      user?.profile?.surname,
-      user?.profile?.location,
-      user?.profile?.bio,
-    ]
-  );
-
-  const [profileData, setProfileData] = useState(initialProfileData);
-
-  // Update profile data only when initial data changes
-  useEffect(() => {
-    setProfileData(initialProfileData);
-  }, [initialProfileData]);
-
-  // Redirect if not authenticated
-  useEffect(() => {
-    if (!isAuthLoading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, isAuthLoading, router]);
-
-  const handleSaveProfile = async (data: UpdateProfileRequest) => {
-    try {
-      await updateProfile.mutateAsync(data);
-      setEditMode(false);
-    } catch (error) {
-      console.error('Erro ao atualizar perfil:', error);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setProfileData(initialProfileData);
-    setEditMode(false);
-  };
-
-  if (isAuthLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Carregando...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) return null;
+  const stats = [
+    {
+      label: 'Total de Produtos',
+      value: '1,234',
+      icon: <Package className="w-6 h-6" />,
+      trend: { value: 12, isPositive: true },
+      gradient: 'from-blue-500 to-blue-600',
+    },
+    {
+      label: 'Vendas do Mês',
+      value: 'R$ 45.2k',
+      icon: <ShoppingCart className="w-6 h-6" />,
+      trend: { value: 23, isPositive: true },
+      gradient: 'from-purple-500 to-purple-600',
+    },
+    {
+      label: 'Clientes',
+      value: '856',
+      icon: <Users className="w-6 h-6" />,
+      trend: { value: 8, isPositive: true },
+      gradient: 'from-green-500 to-green-600',
+    },
+    {
+      label: 'Receita Total',
+      value: 'R$ 123.4k',
+      icon: <DollarSign className="w-6 h-6" />,
+      trend: { value: 18, isPositive: true },
+      gradient: 'from-orange-500 to-orange-600',
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16 items-center">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-900">
-                🌊 OpenSea Dashboard
-              </h1>
+    <div className="space-y-8">
+      {/* Welcome Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          Bem-vindo de volta! 👋
+        </h1>
+        <p className="text-lg text-gray-600 dark:text-white/60">
+          Aqui está o resumo do seu negócio hoje
+        </p>
+      </motion.div>
+
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, index) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: index * 0.1 }}
+          >
+            <StatsCard {...stat} />
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Quick Actions */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <Card className="p-6 backdrop-blur-xl bg-white/90 dark:bg-white/5 border-gray-200 dark:border-white/10">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                Ações Rápidas
+              </h2>
+              <p className="text-gray-600 dark:text-white/60">
+                Acesse funcionalidades frequentes
+              </p>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">
-                  {user.profile?.name || user.username}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Button
+              variant="outline"
+              className="h-auto p-6 flex flex-col items-start gap-3 hover:bg-blue-50 dark:hover:bg-white/5"
+            >
+              <div className="w-12 h-12 rounded-xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                <Plus className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-left">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                  Novo Produto
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-white/60">
+                  Adicionar item ao estoque
                 </p>
-                <p className="text-xs text-gray-500">{user.email}</p>
               </div>
-              <button
-                onClick={logout}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+            </Button>
+
+            <Button
+              variant="outline"
+              className="h-auto p-6 flex flex-col items-start gap-3 hover:bg-purple-50 dark:hover:bg-white/5"
+            >
+              <div className="w-12 h-12 rounded-xl bg-linear-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                <ShoppingCart className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-left">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                  Nova Venda
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-white/60">
+                  Registrar pedido
+                </p>
+              </div>
+            </Button>
+
+            <Button
+              variant="outline"
+              className="h-auto p-6 flex flex-col items-start gap-3 hover:bg-green-50 dark:hover:bg-white/5"
+            >
+              <div className="w-12 h-12 rounded-xl bg-linear-to-br from-green-500 to-green-600 flex items-center justify-center">
+                <BarChart3 className="w-6 h-6 text-white" />
+              </div>
+              <div className="text-left">
+                <h3 className="font-semibold text-gray-900 dark:text-white mb-1">
+                  Relatórios
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-white/60">
+                  Ver análises
+                </p>
+              </div>
+            </Button>
+          </div>
+        </Card>
+      </motion.div>
+
+      {/* Recent Activity */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.5 }}
+      >
+        <Card className="p-6 backdrop-blur-xl bg-white/90 dark:bg-white/5 border-gray-200 dark:border-white/10">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+                Atividades Recentes
+              </h2>
+              <p className="text-gray-600 dark:text-white/60">
+                Últimas movimentações do sistema
+              </p>
+            </div>
+            <Button variant="ghost" className="gap-2">
+              Ver todas
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            {[
+              {
+                title: 'Novo pedido recebido',
+                description: 'Pedido #12345 de João Silva',
+                time: '5 min atrás',
+                type: 'success',
+              },
+              {
+                title: 'Estoque baixo',
+                description: 'Produto XYZ-123 com apenas 5 unidades',
+                time: '15 min atrás',
+                type: 'warning',
+              },
+              {
+                title: 'Pagamento confirmado',
+                description: 'Pedido #12344 - R$ 1.250,00',
+                time: '1 hora atrás',
+                type: 'success',
+              },
+            ].map((activity, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.6 + index * 0.1 }}
+                className="flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
               >
-                Sair
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Card */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Bem-vindo, {user.profile?.name || user.username}! 👋
-          </h2>
-          <p className="text-gray-600">
-            Este é o seu painel de controle. Gerencie seu perfil e veja suas
-            informações.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* User Info Card */}
-          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">
-                Informações do Perfil
-              </h3>
-              {!editMode && (
-                <button
-                  onClick={() => setEditMode(true)}
-                  className="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
-                >
-                  Editar
-                </button>
-              )}
-            </div>
-
-            <div className="space-y-4">
-              {editMode ? (
-                <ProfileForm
-                  initialData={profileData}
-                  onSubmit={handleSaveProfile}
-                  onCancel={handleCancelEdit}
-                  isSubmitting={updateProfile.isPending}
+                <div
+                  className={`w-2 h-2 rounded-full mt-2 ${
+                    activity.type === 'success'
+                      ? 'bg-green-500'
+                      : activity.type === 'warning'
+                        ? 'bg-orange-500'
+                        : 'bg-blue-500'
+                  }`}
                 />
-              ) : (
-                <>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Nome
-                      </label>
-                      <p className="text-gray-900">
-                        {user.profile?.name || '-'}
-                      </p>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Sobrenome
-                      </label>
-                      <p className="text-gray-900">
-                        {user.profile?.surname || '-'}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Email
-                    </label>
-                    <p className="text-gray-900">{user.email}</p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Username
-                    </label>
-                    <p className="text-gray-900">@{user.username}</p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Localização
-                    </label>
-                    <p className="text-gray-900">
-                      {user.profile?.location || '-'}
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Bio
-                    </label>
-                    <p className="text-gray-900">{user.profile?.bio || '-'}</p>
-                  </div>
-                </>
-              )}
-            </div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-900 dark:text-white mb-1">
+                    {activity.title}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-white/60">
+                    {activity.description}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-white/40 mt-1">
+                    {activity.time}
+                  </p>
+                </div>
+                <Badge
+                  variant={
+                    activity.type === 'success' ? 'default' : 'secondary'
+                  }
+                >
+                  {activity.type === 'success' ? 'Sucesso' : 'Alerta'}
+                </Badge>
+              </motion.div>
+            ))}
           </div>
-
-          {/* Stats Cards */}
-          <div className="space-y-6">
-            {/* Account Status */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Status da Conta
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Role</span>
-                  <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded">
-                    {user.role}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Status</span>
-                  <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded">
-                    Ativo
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">
-                    Email Verificado
-                  </span>
-                  <span className="text-sm font-medium text-gray-900">
-                    ✓ Sim
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Sessions */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Sessões Ativas
-              </h3>
-              <p className="text-3xl font-bold text-indigo-600">
-                {sessionsData?.sessions.length || 0}
-              </p>
-              <p className="text-sm text-gray-600 mt-1">
-                dispositivos conectados
-              </p>
-            </div>
-
-            {/* API Status */}
-            <div className="bg-white rounded-xl shadow-sm p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Status da API
-              </h3>
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                <span className="text-sm text-gray-600">Conectado</span>
-              </div>
-              <p className="text-xs text-gray-500 mt-2">
-                http://localhost:3333
-              </p>
-            </div>
-          </div>
-        </div>
-      </main>
+        </Card>
+      </motion.div>
     </div>
   );
 }

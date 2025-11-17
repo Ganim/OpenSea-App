@@ -1,167 +1,254 @@
 'use client';
 
+import { AuthBackground } from '@/components/ui/auth-background';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useAuth } from '@/contexts/auth-context';
+import { translateError } from '@/lib/error-messages';
 import { useForm } from '@tanstack/react-form';
+import { ChevronLeft, ChevronRight, Lock, User } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
+type LoginStep = 'identifier' | 'password';
+
 interface LoginFormData {
-  email: string;
+  identifier: string;
   password: string;
 }
 
 export default function LoginPage() {
   const { login, isLoading } = useAuth();
+  const router = useRouter();
+  const [currentStep, setCurrentStep] = useState<LoginStep>('identifier');
   const [error, setError] = useState('');
+  const [identifier, setIdentifier] = useState('');
 
   const form = useForm({
     defaultValues: {
-      email: '',
+      identifier: '',
       password: '',
     } as LoginFormData,
     onSubmit: async ({ value }: { value: LoginFormData }) => {
       setError('');
 
       try {
-        await login({ email: value.email, password: value.password });
-      } catch (err) {
-        setError('Credenciais inválidas. Tente novamente.');
+        await login({ email: value.identifier, password: value.password });
+        router.push('/');
+      } catch (err: unknown) {
+        setError(translateError(err));
         console.error('Erro no login:', err);
       }
     },
   });
 
+  const handleIdentifierSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const value = form.getFieldValue('identifier');
+
+    if (!value || value.length < 3) {
+      setError('Digite um email ou nome de usuário válido');
+      return;
+    }
+
+    setError('');
+    setIdentifier(value);
+    setCurrentStep('password');
+  };
+
+  const handleBack = () => {
+    setCurrentStep('identifier');
+    setError('');
+    form.setFieldValue('password', '');
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100 px-4">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl">
-        {/* Header */}
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">OpenSea</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Entre na sua conta para continuar
-          </p>
-        </div>
+    <AuthBackground>
+      <ThemeToggle />
 
-        {/* Form */}
-        <form
-          className="mt-8 space-y-6"
-          onSubmit={e => {
-            e.preventDefault();
-            e.stopPropagation();
-            form.handleSubmit();
-          }}
-        >
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-              {error}
+      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6">
+        <div className="w-full max-w-md">
+          {/* Logo */}
+          <div className="text-center mb-8 animate-in fade-in slide-in-from-top-4 duration-700">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-blue-500 to-blue-600 shadow-2xl shadow-blue-600/40 mb-4">
+              <span className="text-3xl">🌊</span>
             </div>
-          )}
-
-          <div className="space-y-4">
-            {/* Email */}
-            <form.Field name="email">
-              {field => (
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={field.state.value}
-                    onChange={e => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    placeholder="seu@email.com"
-                  />
-                </div>
-              )}
-            </form.Field>
-
-            {/* Password */}
-            <form.Field name="password">
-              {field => (
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Senha
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    value={field.state.value}
-                    onChange={e => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    placeholder="••••••••"
-                  />
-                </div>
-              )}
-            </form.Field>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              OpenSea
+            </h1>
+            <p className="text-gray-600 dark:text-white/60">
+              Entre na sua conta
+            </p>
           </div>
 
-          {/* Submit Button */}
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
-              {isLoading ? (
-                <span className="flex items-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Entrando...
-                </span>
-              ) : (
-                'Entrar'
-              )}
-            </button>
-          </div>
+          {/* Login Card */}
+          <Card className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+            <CardContent className="p-6 sm:p-8">
+              <form
+                onSubmit={
+                  currentStep === 'identifier'
+                    ? handleIdentifierSubmit
+                    : e => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        form.handleSubmit();
+                      }
+                }
+                className="space-y-6"
+              >
+                {/* Error message */}
+                {error && (
+                  <div className="p-4 rounded-2xl bg-red-500/10 dark:bg-red-500/20 border border-red-500/30 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <p className="text-sm text-red-600 dark:text-red-400 text-center">
+                      {error}
+                    </p>
+                  </div>
+                )}
 
-          {/* Register Link */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
+                {/* Step indicator */}
+                <div className="flex items-center justify-center gap-2 mb-6">
+                  <div
+                    className={`h-1.5 w-12 rounded-full transition-all duration-300 ${
+                      currentStep === 'identifier'
+                        ? 'bg-blue-600 dark:bg-blue-400'
+                        : 'bg-gray-300 dark:bg-gray-700'
+                    }`}
+                  />
+                  <div
+                    className={`h-1.5 w-12 rounded-full transition-all duration-300 ${
+                      currentStep === 'password'
+                        ? 'bg-blue-600 dark:bg-blue-400'
+                        : 'bg-gray-300 dark:bg-gray-700'
+                    }`}
+                  />
+                </div>
+
+                {/* Step 1: Identifier */}
+                {currentStep === 'identifier' && (
+                  <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                    <form.Field name="identifier">
+                      {field => (
+                        <div className="space-y-2">
+                          <Label htmlFor="identifier">
+                            Email ou Nome de Usuário
+                          </Label>
+                          <div className="relative">
+                            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-white/40" />
+                            <Input
+                              id="identifier"
+                              type="text"
+                              placeholder="seu@email.com ou @usuario"
+                              value={field.state.value}
+                              onChange={e => field.handleChange(e.target.value)}
+                              onBlur={field.handleBlur}
+                              autoFocus
+                              className="pl-12"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </form.Field>
+
+                    <Button type="submit" className="w-full" size="lg">
+                      Continuar
+                      <ChevronRight className="w-5 h-5 ml-2" />
+                    </Button>
+                  </div>
+                )}
+
+                {/* Step 2: Password */}
+                {currentStep === 'password' && (
+                  <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+                    {/* Show identifier */}
+                    <div className="flex items-center gap-3 p-3 rounded-2xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900/50 shadow-sm">
+                      <User className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
+                      <span className="text-sm text-gray-700 dark:text-gray-300 flex-1 truncate font-medium">
+                        {identifier}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleBack}
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
+                      </button>
+                    </div>
+
+                    <form.Field name="password">
+                      {field => (
+                        <div className="space-y-2">
+                          <Label htmlFor="password">Senha</Label>
+                          <div className="relative">
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-white/40" />
+                            <Input
+                              id="password"
+                              type="password"
+                              placeholder="••••••••"
+                              value={field.state.value}
+                              onChange={e => field.handleChange(e.target.value)}
+                              onBlur={field.handleBlur}
+                              autoFocus
+                              className="pl-12"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </form.Field>
+
+                    {/* Forgot password */}
+                    <div className="text-right">
+                      <Link
+                        href="/forgot-password"
+                        className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium"
+                      >
+                        Esqueceu a senha?
+                      </Link>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleBack}
+                        className="flex-1"
+                        size="lg"
+                      >
+                        <ChevronLeft className="w-5 h-5 mr-2" />
+                        Voltar
+                      </Button>
+                      <Button
+                        type="submit"
+                        className="flex-1"
+                        disabled={isLoading}
+                        size="lg"
+                      >
+                        {isLoading ? 'Entrando...' : 'Entrar'}
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Register link */}
+          <div className="mt-6 text-center animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+            <p className="text-gray-600 dark:text-white/60">
               Não tem uma conta?{' '}
               <Link
                 href="/register"
-                className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
+                className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
               >
-                Registre-se aqui
+                Criar conta
               </Link>
             </p>
           </div>
-        </form>
+        </div>
       </div>
-    </div>
+    </AuthBackground>
   );
 }

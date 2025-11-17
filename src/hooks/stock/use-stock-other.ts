@@ -326,14 +326,20 @@ export function useDeleteTag() {
 export function useTemplates() {
   return useQuery({
     queryKey: QUERY_KEYS.TEMPLATES,
-    queryFn: () => templatesService.listTemplates(),
+    queryFn: async () => {
+      const response = await templatesService.listTemplates();
+      return response.templates;
+    },
   });
 }
 
 export function useTemplate(id: string) {
   return useQuery({
     queryKey: QUERY_KEYS.TEMPLATE(id),
-    queryFn: () => templatesService.getTemplate(id),
+    queryFn: async () => {
+      const response = await templatesService.getTemplate(id);
+      return response.template;
+    },
     enabled: !!id,
   });
 }
@@ -342,8 +348,10 @@ export function useCreateTemplate() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: CreateTemplateRequest) =>
-      templatesService.createTemplate(data),
+    mutationFn: async (data: CreateTemplateRequest) => {
+      const response = await templatesService.createTemplate(data);
+      return response.template;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TEMPLATES });
     },
@@ -354,8 +362,16 @@ export function useUpdateTemplate() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateTemplateRequest }) =>
-      templatesService.updateTemplate(id, data),
+    mutationFn: async ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: UpdateTemplateRequest;
+    }) => {
+      const response = await templatesService.updateTemplate(id, data);
+      return response.template;
+    },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TEMPLATES });
       queryClient.invalidateQueries({

@@ -56,6 +56,42 @@ export const authService = {
     );
   },
 
+  // PATCH /v1/sessions/refresh
+  async refreshToken(): Promise<AuthResponse> {
+    const refreshToken = this.getRefreshToken();
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    // IMPORTANTE: Enviar refresh token no header Authorization, não no body
+    const baseURL =
+      process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3333';
+    const response = await fetch(
+      `${baseURL}${API_ENDPOINTS.SESSIONS.REFRESH}`,
+      {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${refreshToken}`, // ⚠️ USA REFRESH TOKEN NO HEADER!
+        },
+        credentials: 'include',
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to refresh token');
+    }
+
+    const data = await response.json();
+
+    // IMPORTANTE: Substituir AMBOS os tokens pelos novos recebidos
+    if (data.token && data.refreshToken) {
+      this.setToken(data.token);
+      this.setRefreshToken(data.refreshToken);
+    }
+
+    return data;
+  },
+
   // Token Management
   setToken(token: string): void {
     if (typeof window !== 'undefined') {

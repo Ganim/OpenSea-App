@@ -17,6 +17,7 @@ export const authKeys = {
   register: () => [...authKeys.all, 'register'] as const,
   sendPasswordReset: () => [...authKeys.all, 'send-password-reset'] as const,
   resetPassword: () => [...authKeys.all, 'reset-password'] as const,
+  refresh: () => [...authKeys.all, 'refresh'] as const,
 };
 
 // Mutations
@@ -68,5 +69,22 @@ export function useResetPassword() {
   return useMutation<MessageResponse, Error, ResetPasswordRequest>({
     mutationKey: authKeys.resetPassword(),
     mutationFn: data => authService.resetPassword(data),
+  });
+}
+
+/**
+ * Hook para renovar token de acesso
+ * POST /v1/sessions/refresh
+ */
+export function useRefreshToken() {
+  const queryClient = useQueryClient();
+
+  return useMutation<AuthResponse, Error, void>({
+    mutationKey: authKeys.refresh(),
+    mutationFn: () => authService.refreshToken(),
+    onSuccess: () => {
+      // Invalidate user queries after successful refresh
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+    },
   });
 }

@@ -1,52 +1,273 @@
 @import 'tailwindcss';
 
-@theme inline {
-  --color-background: hsl(0 0% 100%);
-  --color-foreground: hsl(0 0% 3.9%);
-  --color-card: hsl(0 0% 100%);
-  --color-card-foreground: hsl(0 0% 3.9%);
-  --color-popover: hsl(0 0% 100%);
-  --color-popover-foreground: hsl(0 0% 3.9%);
-  --color-primary: hsl(0 0% 9%);
-  --color-primary-foreground: hsl(0 0% 98%);
-  --color-secondary: hsl(0 0% 96.1%);
-  --color-secondary-foreground: hsl(0 0% 9%);
-  --color-muted: hsl(0 0% 96.1%);
-  --color-muted-foreground: hsl(0 0% 45.1%);
-  --color-accent: hsl(0 0% 96.1%);
-  --color-accent-foreground: hsl(0 0% 9%);
-  --color-destructive: hsl(0 84.2% 60.2%);
-  --color-destructive-foreground: hsl(0 0% 98%);
-  --color-border: hsl(0 0% 89.8%);
-  --color-input: hsl(0 0% 89.8%);
-  --color-ring: hsl(0 0% 3.9%);
+@custom-variant dark (&:is(.dark *));
+
+/* ===========================================
+   GLASSMORPHISM DESIGN SYSTEM
+   Modern Dashboard Interface
+   =========================================== */
+
+/* Tema Light - Tons suaves e agradáveis */
+:root {
+  /* Cores de fundo - Gradientes suaves */
+  --bg-from: 239 246 255; /* blue-50 suave */
+  --bg-via: 249 250 251; /* gray-50 muito suave */
+  --bg-to: 250 245 255; /* purple-50 suave */
+
+  /* Esferas animadas */
+  --sphere-1: 96 165 250; /* blue-400 */
+  --sphere-1-opacity: 0.3;
+  --sphere-2: 192 132 252; /* purple-400 */
+  --sphere-2-opacity: 0.3;
+  --sphere-3: 147 197 253; /* blue-300 */
+  --sphere-3-opacity: 0.2;
+
+  /* Cores principais */
+  --color-background: 249 250 251; /* Cinza muito claro (não branco puro) */
+  --color-foreground: 51 65 85; /* Cinza escuro suave para leitura */
+
+  /* Cards e componentes */
+  --color-card: 255 255 255; /* Branco para cards */
+  --color-card-foreground: 51 65 85;
+
+  /* Primary - Azul */
+  --color-primary: 59 130 246; /* blue-500 */
+  --color-primary-foreground: 255 255 255;
+  --color-primary-hover: 37 99 235; /* blue-600 */
+
+  /* Secondary - Glass effect */
+  --color-secondary: 241 245 249; /* slate-100 */
+  --color-secondary-foreground: 51 65 85;
+
+  /* Muted - Elementos discretos */
+  --color-muted: 241 245 249; /* slate-100 */
+  --color-muted-foreground: 100 116 139; /* slate-500 */
+
+  /* Accent - Destaques */
+  --color-accent: 239 246 255; /* blue-50 */
+  --color-accent-foreground: 30 64 175; /* blue-800 */
+
+  /* Destructive - Erros */
+  --color-destructive: 239 68 68; /* red-500 */
+  --color-destructive-foreground: 255 255 255;
+
+  /* Bordas e inputs */
+  --color-border: 226 232 240; /* slate-200 */
+  --color-input: 241 245 249; /* slate-100 */
+  --color-ring: 59 130 246; /* blue-500 */
+
+  /* Glass effect - Light */
+  --glass-bg: 255 255 255; /* Branco com opacity */
+  --glass-border: 226 232 240; /* Borda suave */
+
+  /* Shadows */
+  --shadow-color: 15 23 42; /* Para sombras */
+  --sidebar: hsl(0 0% 98%);
+  --sidebar-foreground: hsl(240 5.3% 26.1%);
+  --sidebar-primary: hsl(240 5.9% 10%);
+  --sidebar-primary-foreground: hsl(0 0% 98%);
+  --sidebar-accent: hsl(240 4.8% 95.9%);
+  --sidebar-accent-foreground: hsl(240 5.9% 10%);
+  --sidebar-border: hsl(220 13% 91%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
 }
 
-@media (prefers-color-scheme: dark) {
-  @theme inline {
-    --color-background: hsl(0 0% 3.9%);
-    --color-foreground: hsl(0 0% 98%);
-    --color-card: hsl(0 0% 3.9%);
-    --color-card-foreground: hsl(0 0% 98%);
-    --color-popover: hsl(0 0% 3.9%);
-    --color-popover-foreground: hsl(0 0% 98%);
-    --color-primary: hsl(0 0% 98%);
-    --color-primary-foreground: hsl(0 0% 9%);
-    --color-secondary: hsl(0 0% 14.9%);
-    --color-secondary-foreground: hsl(0 0% 98%);
-    --color-muted: hsl(0 0% 14.9%);
-    --color-muted-foreground: hsl(0 0% 63.9%);
-    --color-accent: hsl(0 0% 14.9%);
-    --color-accent-foreground: hsl(0 0% 98%);
-    --color-destructive: hsl(0 62.8% 30.6%);
-    --color-destructive-foreground: hsl(0 0% 98%);
-    --color-border: hsl(0 0% 14.9%);
-    --color-input: hsl(0 0% 14.9%);
-    --color-ring: hsl(0 0% 83.1%);
-  }
+/* Tema Dark - Mantém o original */
+.dark {
+  /* Cores de fundo - Gradientes escuros */
+  --bg-from: 17 24 39; /* gray-900 */
+  --bg-via: 15 23 42; /* slate-900 */
+  --bg-to: 30 41 59; /* slate-800 com toque azul */
+
+  /* Esferas animadas */
+  --sphere-1: 96 165 250; /* blue-400 */
+  --sphere-1-opacity: 0.1;
+  --sphere-2: 192 132 252; /* purple-400 */
+  --sphere-2-opacity: 0.1;
+  --sphere-3: 59 130 246; /* blue-500 */
+  --sphere-3-opacity: 0.05;
+
+  /* Cores principais */
+  --color-background: 15 23 42; /* slate-900 */
+  --color-foreground: 248 250 252; /* slate-50 */
+
+  /* Cards e componentes */
+  --color-card: 30 41 59; /* slate-800 */
+  --color-card-foreground: 248 250 252;
+
+  /* Primary - Azul */
+  --color-primary: 59 130 246; /* blue-500 */
+  --color-primary-foreground: 255 255 255;
+  --color-primary-hover: 96 165 250; /* blue-400 */
+
+  /* Secondary - Glass effect dark */
+  --color-secondary: 51 65 85; /* slate-700 */
+  --color-secondary-foreground: 248 250 252;
+
+  /* Muted - Elementos discretos */
+  --color-muted: 51 65 85; /* slate-700 */
+  --color-muted-foreground: 148 163 184; /* slate-400 */
+
+  /* Accent - Destaques */
+  --color-accent: 51 65 85; /* slate-700 */
+  --color-accent-foreground: 147 197 253; /* blue-300 */
+
+  /* Destructive - Erros */
+  --color-destructive: 220 38 38; /* red-600 */
+  --color-destructive-foreground: 255 255 255;
+
+  /* Bordas e inputs */
+  --color-border: 51 65 85; /* slate-700 */
+  --color-input: 51 65 85; /* slate-700 */
+  --color-ring: 59 130 246; /* blue-500 */
+
+  /* Glass effect - Dark */
+  --glass-bg: 30 41 59; /* slate-800 com opacity */
+  --glass-border: 51 65 85; /* Borda discreta */
+
+  /* Shadows */
+  --shadow-color: 0 0 0; /* Para sombras escuras */
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+* {
+  border-color: rgb(var(--color-border) / 0.2);
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
+  background-color: rgb(var(--color-background));
+  color: rgb(var(--color-foreground));
+  font-feature-settings:
+    'rlig' 1,
+    'calt' 1;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+@theme inline {
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* ===========================================
+   GLASS EFFECTS & ANIMATIONS
+   =========================================== */
+
+/* Glassmorphism utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.dark .glass {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.dark .glass-strong {
+  background: rgba(30, 41, 59, 0.85);
+  backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* Custom animations */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-right {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(148, 163, 184, 0.6);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.4);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(71, 85, 105, 0.6);
 }

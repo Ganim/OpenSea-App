@@ -4,7 +4,7 @@ export {
   useLogin,
   useRegister,
   useResetPassword,
-  useSendPasswordReset
+  useSendPasswordReset,
 } from './use-auth';
 
 // Me (Profile) hooks
@@ -15,7 +15,7 @@ export {
   useUpdateEmail,
   useUpdatePassword,
   useUpdateProfile,
-  useUpdateUsername
+  useUpdateUsername,
 } from './use-me';
 
 // Sessions hooks
@@ -28,7 +28,7 @@ export {
   useRefreshToken,
   useRevokeSession,
   useUserSessions,
-  useUserSessionsByDate
+  useUserSessionsByDate,
 } from './use-sessions';
 
 // Users hooks
@@ -46,7 +46,7 @@ export {
   useUserByEmail,
   useUserByUsername,
   useUsers,
-  useUsersByRole
+  useUsersByRole,
 } from './use-users';
 
 // Stock hooks

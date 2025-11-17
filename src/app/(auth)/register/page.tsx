@@ -1,8 +1,25 @@
 'use client';
 
+import { AuthBackground } from '@/components/ui/auth-background';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useAuth } from '@/contexts/auth-context';
+import { translateError } from '@/lib/error-messages';
 import { useForm } from '@tanstack/react-form';
+import {
+  CheckCircle2,
+  ChevronRight,
+  Hash,
+  Info,
+  Lock,
+  Mail,
+  User,
+} from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
 interface RegisterFormData {
@@ -10,10 +27,12 @@ interface RegisterFormData {
   email: string;
   username: string;
   password: string;
+  confirmPassword: string;
 }
 
 export default function RegisterPage() {
   const { register, isLoading } = useAuth();
+  const router = useRouter();
   const [error, setError] = useState('');
 
   const form = useForm({
@@ -22,12 +41,28 @@ export default function RegisterPage() {
       email: '',
       username: '',
       password: '',
+      confirmPassword: '',
     } as RegisterFormData,
     onSubmit: async ({ value }: { value: RegisterFormData }) => {
       setError('');
 
+      // Validations
+      if (value.password !== value.confirmPassword) {
+        setError('As senhas não coincidem');
+        return;
+      }
+
+      if (value.password.length < 6) {
+        setError('A senha deve ter pelo menos 6 caracteres');
+        return;
+      }
+
+      if (value.username.length < 3) {
+        setError('O nome de usuário deve ter pelo menos 3 caracteres');
+        return;
+      }
+
       try {
-        // Estrutura os dados no formato RegisterData
         await register({
           email: value.email,
           password: value.password,
@@ -36,194 +71,209 @@ export default function RegisterPage() {
             name: value.name,
           },
         });
-      } catch (err) {
-        setError('Erro ao criar conta. Tente novamente.');
+        router.push('/');
+      } catch (err: unknown) {
+        setError(translateError(err));
         console.error('Erro no registro:', err);
       }
     },
   });
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-blue-50 to-indigo-100 px-4">
-      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-2xl shadow-xl">
-        {/* Header */}
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">Criar Conta</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Preencha os dados para se cadastrar
-          </p>
-        </div>
+    <AuthBackground>
+      <ThemeToggle />
 
-        {/* Form */}
-        <form
-          className="mt-8 space-y-6"
-          onSubmit={e => {
-            e.preventDefault();
-            e.stopPropagation();
-            form.handleSubmit();
-          }}
-        >
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-              {error}
+      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 py-12">
+        <div className="w-full max-w-md">
+          {/* Logo */}
+          <div className="text-center mb-8 animate-in fade-in slide-in-from-top-4 duration-700">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-linear-to-br from-blue-500 to-blue-600 shadow-2xl shadow-blue-600/40 mb-4">
+              <span className="text-3xl">🌊</span>
             </div>
-          )}
-
-          <div className="space-y-4">
-            {/* Name */}
-            <form.Field name="name">
-              {field => (
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Nome
-                  </label>
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    required
-                    value={field.state.value}
-                    onChange={e => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    placeholder="Seu nome"
-                  />
-                </div>
-              )}
-            </form.Field>
-
-            {/* Username */}
-            <form.Field name="username">
-              {field => (
-                <div>
-                  <label
-                    htmlFor="username"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Nome de usuário
-                  </label>
-                  <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    required
-                    value={field.state.value}
-                    onChange={e => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    placeholder="usuario123"
-                  />
-                </div>
-              )}
-            </form.Field>
-
-            {/* Email */}
-            <form.Field name="email">
-              {field => (
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Email
-                  </label>
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={field.state.value}
-                    onChange={e => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    placeholder="seu@email.com"
-                  />
-                </div>
-              )}
-            </form.Field>
-
-            {/* Password */}
-            <form.Field name="password">
-              {field => (
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Senha
-                  </label>
-                  <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    value={field.state.value}
-                    onChange={e => field.handleChange(e.target.value)}
-                    onBlur={field.handleBlur}
-                    className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    placeholder="••••••••"
-                  />
-                </div>
-              )}
-            </form.Field>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              Criar Conta
+            </h1>
+            <p className="text-gray-600 dark:text-white/60">
+              Comece sua jornada no OpenSea
+            </p>
           </div>
 
-          {/* Submit Button */}
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-            >
-              {isLoading ? (
-                <span className="flex items-center">
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Criando conta...
-                </span>
-              ) : (
-                'Criar Conta'
-              )}
-            </button>
-          </div>
+          {/* Register Card */}
+          <Card className="animate-in fade-in slide-in-from-bottom-4 duration-700 delay-150">
+            <CardContent className="p-6 sm:p-8">
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  form.handleSubmit();
+                }}
+                className="space-y-5"
+              >
+                {/* Error message */}
+                {error && (
+                  <div className="p-4 rounded-2xl bg-red-500/10 dark:bg-red-500/20 border border-red-500/30 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <p className="text-sm text-red-600 dark:text-red-400 text-center">
+                      {error}
+                    </p>
+                  </div>
+                )}
 
-          {/* Login Link */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
+                {/* Name */}
+                <form.Field name="name">
+                  {field => (
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Nome Completo</Label>
+                      <div className="relative">
+                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-white/40" />
+                        <Input
+                          id="name"
+                          type="text"
+                          placeholder="João Silva"
+                          value={field.state.value}
+                          onChange={e => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          autoFocus
+                          className="pl-12"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </form.Field>
+
+                {/* Username */}
+                <form.Field name="username">
+                  {field => (
+                    <div className="space-y-2">
+                      <Label htmlFor="username">Nome de Usuário</Label>
+                      <div className="relative">
+                        <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-white/40" />
+                        <Input
+                          id="username"
+                          type="text"
+                          placeholder="joaosilva"
+                          value={field.state.value}
+                          onChange={e => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          className="pl-12"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </form.Field>
+
+                {/* Email */}
+                <form.Field name="email">
+                  {field => (
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-white/40" />
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="joao@email.com"
+                          value={field.state.value}
+                          onChange={e => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          className="pl-12"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </form.Field>
+
+                {/* Password */}
+                <form.Field name="password">
+                  {field => (
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Senha</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-white/40" />
+                        <Input
+                          id="password"
+                          type="password"
+                          placeholder="••••••••"
+                          value={field.state.value}
+                          onChange={e => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          className="pl-12"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </form.Field>
+
+                {/* Confirm Password */}
+                <form.Field name="confirmPassword">
+                  {field => (
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword">Confirmar Senha</Label>
+                      <div className="relative">
+                        <CheckCircle2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 dark:text-white/40" />
+                        <Input
+                          id="confirmPassword"
+                          type="password"
+                          placeholder="••••••••"
+                          value={field.state.value}
+                          onChange={e => field.handleChange(e.target.value)}
+                          onBlur={field.handleBlur}
+                          className="pl-12"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </form.Field>
+
+                {/* Terms */}
+                <div className="flex items-start gap-3 p-4 rounded-2xl bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900/50">
+                  <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    Ao criar uma conta, você concorda com nossos{' '}
+                    <Link
+                      href="/terms"
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium"
+                    >
+                      Termos de Serviço
+                    </Link>{' '}
+                    e{' '}
+                    <Link
+                      href="/privacy"
+                      className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium"
+                    >
+                      Política de Privacidade
+                    </Link>
+                    .
+                  </p>
+                </div>
+
+                {/* Submit Button */}
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading}
+                  size="lg"
+                >
+                  {isLoading ? 'Criando conta...' : 'Criar Conta'}
+                  <ChevronRight className="w-5 h-5 ml-2" />
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          {/* Login link */}
+          <div className="mt-6 text-center animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+            <p className="text-gray-600 dark:text-white/60">
               Já tem uma conta?{' '}
               <Link
                 href="/login"
-                className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"
+                className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
               >
-                Entre aqui
+                Entrar
               </Link>
             </p>
           </div>
-        </form>
+        </div>
       </div>
-    </div>
+    </AuthBackground>
   );
 }
